@@ -1,3 +1,4 @@
+// form-handler.js
 function initFormHandlers() {
     document.getElementById('clearFormBtn').addEventListener('click', clearForm);
     
@@ -26,30 +27,4 @@ function initFormHandlers() {
             document.getElementById('reportPreviewContent').innerHTML = '<p class="text-gray-500 italic">Fill out the form to see the preview</p>';
         }
     }
-    
-    function validateForm() {
-        const requiredFields = [
-            { id: 'bugSummary', name: 'Summary' },
-            { id: 'bugSeverity', name: 'Severity' },
-            { id: 'bugDescription', name: 'Description' },
-            { id: 'reportedBy', name: 'Reported By' }
-        ];
-        
-        let isValid = true;
-        
-        requiredFields.forEach(field => {
-            const element = document.getElementById(field.id);
-            if (!element.value.trim()) {
-                alert(`Please fill in the "${field.name}" field`);
-                element.focus();
-                isValid = false;
-                return false;
-            }
-        });
-        
-        return isValid;
-    }
-    
-    // Export the validateForm function for use in other modules
-    window.validateForm = validateForm;
 }
