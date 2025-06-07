@@ -60,37 +60,41 @@ function initPreview() {
                 
                 <div class="space-y-2">
                     <h2 class="text-xl font-semibold text-gray-800 border-b pb-1">Detailed Description</h2>
-                    <p>${description.replace(/\n/g, '<br>')}</p>
+                    <p style="white-space: pre-wrap;">${description.replace(/\n/g, '<br>')}</p>
                 </div>
-                
-                ${environment ? `
+        `;
+        
+        if (environment) {
+            html += `
                 <div class="space-y-2">
                     <h2 class="text-xl font-semibold text-gray-800 border-b pb-1">Environment</h2>
-                    <p>${environment.replace(/\n/g, '<br>')}</p>
+                    <p style="white-space: pre-wrap;">${environment.replace(/\n/g, '<br>')}</p>
                 </div>
-                ` : ''}
-                
-                ${nextSteps ? `
+            `;
+        }
+        
+        if (nextSteps) {
+            html += `
                 <div class="space-y-2">
                     <h2 class="text-xl font-semibold text-gray-800 border-b pb-1">Recommended Next Steps</h2>
-                    <p>${nextSteps.replace(/\n/g, '<br>')}</p>
+                    <p style="white-space: pre-wrap;">${nextSteps.replace(/\n/g, '<br>')}</p>
                 </div>
-                ` : ''}
-                
-                ${document.getElementById('previewContainer').children.length > 0 ? `
-                <div class="space-y-2">
-                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-1">Screenshots</h2>
-                    <div class="grid grid-cols-1 gap-3">
-                ` : ''}
-        `;
+            `;
+        }
         
         // Add screenshots if any
         const images = document.getElementById('previewContainer').querySelectorAll('img');
-        images.forEach(img => {
-            html += `<div class="border rounded-md p-2"><img src="${img.src}" class="w-full max-h-60 object-contain mx-auto"></div>`;
-        });
-        
         if (images.length > 0) {
+            html += `
+                <div class="space-y-2">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-1">Screenshots</h2>
+                    <div class="grid grid-cols-1 gap-3">
+            `;
+            
+            images.forEach(img => {
+                html += `<div class="border rounded-md p-2"><img src="${img.src}" class="w-full max-h-60 object-contain mx-auto"></div>`;
+            });
+            
             html += `</div></div>`;
         }
         
