@@ -49,12 +49,24 @@ function initFileUpload() {
             previewContainer.classList.remove('hidden');
             clearImagesBtn.classList.remove('hidden');
             
+            // Add loading state
+            previewContainer.innerHTML = '<div class="col-span-full text-center py-4">Loading images...</div>';
+            
+            let loadedCount = 0;
+            let imageElements = [];
+            
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 if (!file.type.match('image.*')) continue;
                 
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    // Clear loading state after first image loads
+                    if (loadedCount === 0) {
+                        previewContainer.innerHTML = '';
+                    }
+                    loadedCount++;
+                    
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.classList.add('w-full', 'h-auto', 'rounded', 'object-cover');
@@ -75,7 +87,12 @@ function initFileUpload() {
                     
                     previewItem.appendChild(img);
                     previewItem.appendChild(removeBtn);
-                    previewContainer.appendChild(previewItem);
+                    imageElements.push(previewItem);
+                    
+                    // When all images are loaded, add them to the container
+                    if (imageElements.length === files.length) {
+                        imageElements.forEach(el => previewContainer.appendChild(el));
+                    }
                 };
                 reader.readAsDataURL(file);
             }
