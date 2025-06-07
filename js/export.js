@@ -27,7 +27,7 @@ function initExport() {
     }
     
     async function exportReport(format) {
-        if (!validateForm()) return;
+        if (!window.validateForm()) return;
         
         try {
             // Create a temporary element with the report content
@@ -49,57 +49,6 @@ function initExport() {
                 });
             });
 
-            // Compress and resize large images
-            for (const img of images) {
-                // Compress large images
-                if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
-                    await compressImage(img, 0.7);
-                }
-                
-                // Add styles for PDF
-                img.style.maxWidth = '90%';
-                img.style.maxHeight = 'none';
-                img.style.height = 'auto';
-                img.style.width = 'auto';
-                img.style.display = 'block';
-                img.style.margin = '15px auto';
-                img.style.border = '1px solid #ddd';
-                img.style.borderRadius = '4px';
-                img.style.padding = '5px';
-                img.style.objectFit = 'contain';
-                img.style.pageBreakInside = 'avoid';
-                img.style.pageBreakAfter = 'auto';
-                img.style.pageBreakBefore = 'avoid';
-            }
-            
-            const opt = {
-                margin: [15, 15, 15, 15],
-                filename: `${document.getElementById('reportNumber').value}_bug_report.pdf`,
-                image: { 
-                    type: 'jpeg', 
-                    quality: 0.95,
-                    cache: true
-                },
-                html2canvas: { 
-                    scale: 2,
-                    logging: true,
-                    useCORS: true,
-                    allowTaint: true,
-                    letterRendering: true,
-                    async: true
-                },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait',
-                    hotfixes: ["px_scaling"]
-                },
-                pagebreak: { 
-                    mode: ['avoid-all', 'css', 'legacy'],
-                    avoid: ['img', '.break-avoid']
-                }
-            };
-            
             if (format === 'pdf') {
                 document.getElementById('previewModal').classList.add('hidden');
                 
@@ -141,58 +90,23 @@ function initExport() {
                 footer.innerHTML = `Confidential - ${new Date().getFullYear()} © Bug Reporting System`;
                 element.appendChild(footer);
                 
-                // Export with retry logic for images
-                await exportWithRetry(element, opt);
+                // Export with html2pdf
+                const opt = {
+                    margin: 10,
+                    filename: `${document.getElementById('reportNumber').value}_bug_report.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+                
+                await html2pdf().set(opt).from(element).save();
             } else {
                 alert('Word export would be implemented here. For this demo, we only provide PDF export.');
             }
         } catch (error) {
             console.error('Export failed:', error);
             alert('Failed to generate PDF. Please try again.');
-        }
-    }
-    
-    async function compressImage(imgElement, quality = 0.8) {
-        return new Promise((resolve) => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Calculate new dimensions while maintaining aspect ratio
-            const maxDimension = 1000;
-            let width = imgElement.naturalWidth;
-            let height = imgElement.naturalHeight;
-            
-            if (width > height && width > maxDimension) {
-                height *= maxDimension / width;
-                width = maxDimension;
-            } else if (height > maxDimension) {
-                width *= maxDimension / height;
-                height = maxDimension;
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            
-            ctx.drawImage(imgElement, 0, 0, width, height);
-            
-            canvas.toBlob((blob) => {
-                imgElement.src = URL.createObjectURL(blob);
-                resolve();
-            }, 'image/jpeg', quality);
-        });
-    }
-    
-    async function exportWithRetry(element, options, retries = 3) {
-        try {
-            await html2pdf().set(options).from(element).save();
-        } catch (error) {
-            if (retries > 0) {
-                console.log(`Retrying export... (${retries} attempts left)`);
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await exportWithRetry(element, options, retries - 1);
-            } else {
-                throw error;
-            }
         }
     }
     
