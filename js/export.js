@@ -37,9 +37,9 @@ function initExport() {
             // Process images for PDF export
             const images = element.querySelectorAll('img');
             
-            // Compress and resize large images
-            for (const img of images) {
-                await new Promise(resolve => {
+            // Wait for all images to load
+            await Promise.all(Array.from(images).map(img => {
+                return new Promise((resolve) => {
                     if (img.complete) {
                         resolve();
                     } else {
@@ -47,7 +47,10 @@ function initExport() {
                         img.onerror = resolve;
                     }
                 });
-                
+            });
+
+            // Compress and resize large images
+            for (const img of images) {
                 // Compress large images
                 if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
                     await compressImage(img, 0.7);
