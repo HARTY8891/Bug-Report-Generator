@@ -49,12 +49,14 @@ function initExport() {
                 
                 // Add styles for PDF
                 img.style.maxWidth = '100%';
+                img.style.maxHeight = '500px';
                 img.style.height = 'auto';
                 img.style.display = 'block';
                 img.style.margin = '10px auto';
                 img.style.border = '1px solid #ddd';
                 img.style.borderRadius = '4px';
                 img.style.padding = '5px';
+                img.style.objectFit = 'contain';
             }
             
             const opt = {
@@ -147,7 +149,7 @@ function initExport() {
         }
     }
     
-        async function generateReportHTML() {
+    async function generateReportHTML() {
         const date = document.getElementById('reportDate').value;
         const reportNumber = document.getElementById('reportNumber').value;
         const summary = document.getElementById('bugSummary').value;
