@@ -1,3 +1,5 @@
+[file name]: file-upload.js
+[file content begin]
 function initFileUpload() {
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
@@ -87,9 +89,11 @@ function initFileUpload() {
                     
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.className = 'w-full h-auto rounded object-contain border border-gray-200';
-                    img.loading = 'eager'; // Force eager loading for PDF export
-                    img.crossOrigin = 'Anonymous'; // Important for PDF export
+                    img.className = 'w-full h-auto rounded object-contain border border-gray-200 max-h-[300px]';
+                    img.loading = 'eager';
+                    img.crossOrigin = 'Anonymous';
+                    img.style.maxHeight = '300px';
+                    img.style.objectFit = 'contain';
                     
                     const removeBtn = document.createElement('button');
                     removeBtn.innerHTML = '<i class="fas fa-times"></i>';
@@ -149,3 +153,4 @@ function initFileUpload() {
         fileInput.value = '';
     }
 }
+[file content end]
