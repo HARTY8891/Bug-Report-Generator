@@ -57,10 +57,8 @@ function initFileUpload() {
             previewContainer.classList.remove('hidden');
             clearImagesBtn.classList.remove('hidden');
             
-            // Clear previous images only if not holding Ctrl key (for multiple selections)
-            if (!e.ctrlKey && !e.metaKey) {
-                previewContainer.innerHTML = '';
-            }
+            // Clear previous images when new files are selected
+            previewContainer.innerHTML = '';
             
             // Create loading indicator
             const loadingIndicator = document.createElement('div');
@@ -118,16 +116,16 @@ function initFileUpload() {
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(removeBtn);
                     
-                    // Replace the last placeholder (which is our loading indicator)
+                    // Replace the corresponding placeholder
                     const placeholders = previewContainer.querySelectorAll('div.relative.bg-gray-100');
-                    if (placeholders.length > 0) {
-                        placeholders[placeholders.length - 1].replaceWith(imgContainer);
+                    if (placeholders[loadedCount - 1]) {
+                        placeholders[loadedCount - 1].replaceWith(imgContainer);
                     } else {
                         previewContainer.appendChild(imgContainer);
                     }
                     
-                    // Remove initial loading indicator if this is the first image
-                    if (loadedCount === 1 && loadingIndicator.parentNode) {
+                    // Remove initial loading indicator when all images are loaded
+                    if (loadedCount === validImages.length && loadingIndicator.parentNode) {
                         previewContainer.removeChild(loadingIndicator);
                     }
                 };
@@ -142,8 +140,8 @@ function initFileUpload() {
                     errorDiv.textContent = `Error loading: ${file.name}`;
                     
                     const placeholders = previewContainer.querySelectorAll('div.relative.bg-gray-100');
-                    if (placeholders.length > 0) {
-                        placeholders[placeholders.length - 1].replaceWith(errorDiv);
+                    if (placeholders[loadedCount - 1]) {
+                        placeholders[loadedCount - 1].replaceWith(errorDiv);
                     } else {
                         previewContainer.appendChild(errorDiv);
                     }
