@@ -1,5 +1,3 @@
-[file name]: file-upload.js
-[file content begin]
 function initFileUpload() {
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
@@ -153,4 +151,3 @@ function initFileUpload() {
         fileInput.value = '';
     }
 }
-[file content end]
