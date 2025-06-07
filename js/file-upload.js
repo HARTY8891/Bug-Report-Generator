@@ -44,13 +44,23 @@ function initFileUpload() {
     }
     
     function handleFiles(e) {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
+        try {
+            let files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            
+            // Limit to 10 files max
+            if (files.length > 10) {
+                alert('Maximum 10 images allowed. Only the first 10 will be processed.');
+                files = files.slice(0, 10);
+            }
+            
             previewContainer.classList.remove('hidden');
             clearImagesBtn.classList.remove('hidden');
             
-            // Clear previous images
-            previewContainer.innerHTML = '';
+            // Clear previous images only if not holding Ctrl key (for multiple selections)
+            if (!e.ctrlKey && !e.metaKey) {
+                previewContainer.innerHTML = '';
+            }
             
             // Create loading indicator
             const loadingIndicator = document.createElement('div');
@@ -83,7 +93,7 @@ function initFileUpload() {
                     
                     // Replace placeholder with actual image
                     const imgContainer = document.createElement('div');
-                    imgContainer.className = 'relative group';
+                    imgContainer.className = 'relative group break-avoid';
                     
                     const img = document.createElement('img');
                     img.src = e.target.result;
@@ -141,6 +151,9 @@ function initFileUpload() {
                 
                 reader.readAsDataURL(file);
             });
+        } catch (error) {
+            console.error('Error handling files:', error);
+            alert('Error processing files. Please try again.');
         }
     }
     
