@@ -56,6 +56,8 @@ function initPreview() {
                     <p><strong>Summary:</strong> ${summary}</p>
                     <p><strong>Severity:</strong> ${severity} ${urgent ? '<span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded ml-2">URGENT</span>' : ''}</p>
                     ${confidential ? '<p class="text-red-600 font-medium"><i class="fas fa-lock mr-1"></i> CONFIDENTIAL</p>' : ''}
+                    <p><strong>Reported By:</strong> ${reportedBy}</p>
+                    <p><strong>Assigned To:</strong> ${reportedTo || 'Not assigned'}</p>
                 </div>
                 
                 <div class="space-y-2">
@@ -92,25 +94,13 @@ function initPreview() {
             `;
             
             images.forEach(img => {
-                html += `<div class="border rounded-md p-2"><img src="${img.src}" class="w-full max-h-60 object-contain mx-auto"></div>`;
+                html += `<div class="border rounded-md p-2"><img src="${img.src}" class="w-full max-h-[500px] object-contain mx-auto"></div>`;
             });
             
             html += `</div></div>`;
         }
         
-        html += `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    <div class="space-y-1">
-                        <h3 class="font-semibold text-gray-800">Reported By</h3>
-                        <p>${reportedBy}</p>
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="font-semibold text-gray-800">Assigned To</h3>
-                        <p>${reportedTo || 'Not assigned'}</p>
-                    </div>
-                </div>
-            </div>
-        `;
+        html += `</div>`;
         
         return html;
     }
