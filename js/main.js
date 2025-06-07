@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date
+    updateDate();
+    document.getElementById('dateFormat').addEventListener('change', updateDate);
+    
     // Initialize modules
     initFileUpload();
     initFormHandlers();
     initPreview();
     initDrafts();
     initExport();
-    
-    // Initialize date
-    updateDate();
-    document.getElementById('dateFormat').addEventListener('change', updateDate);
     
     function updateDate() {
         const format = document.getElementById('dateFormat').value;
@@ -39,3 +39,27 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('reportNumber').value = reportNumber;
     }
 });
+
+// Make validateForm globally available
+window.validateForm = function() {
+    const requiredFields = [
+        { id: 'bugSummary', name: 'Summary' },
+        { id: 'bugSeverity', name: 'Severity' },
+        { id: 'bugDescription', name: 'Description' },
+        { id: 'reportedBy', name: 'Reported By' }
+    ];
+    
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (!element.value.trim()) {
+            alert(`Please fill in the "${field.name}" field`);
+            element.focus();
+            isValid = false;
+            return false;
+        }
+    });
+    
+    return isValid;
+};
