@@ -36,8 +36,9 @@ function initExport() {
             
             // Process images for PDF export
             const images = element.querySelectorAll('img');
+            
+            // Compress and resize large images
             for (const img of images) {
-                // Ensure images are fully loaded before export
                 await new Promise(resolve => {
                     if (img.complete) {
                         resolve();
@@ -47,22 +48,35 @@ function initExport() {
                     }
                 });
                 
+                // Compress large images
+                if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
+                    await compressImage(img, 0.7);
+                }
+                
                 // Add styles for PDF
-                img.style.maxWidth = '100%';
-                img.style.maxHeight = '500px';
+                img.style.maxWidth = '90%';
+                img.style.maxHeight = 'none';
                 img.style.height = 'auto';
+                img.style.width = 'auto';
                 img.style.display = 'block';
-                img.style.margin = '10px auto';
+                img.style.margin = '15px auto';
                 img.style.border = '1px solid #ddd';
                 img.style.borderRadius = '4px';
                 img.style.padding = '5px';
                 img.style.objectFit = 'contain';
+                img.style.pageBreakInside = 'avoid';
+                img.style.pageBreakAfter = 'auto';
+                img.style.pageBreakBefore = 'avoid';
             }
             
             const opt = {
                 margin: [15, 15, 15, 15],
                 filename: `${document.getElementById('reportNumber').value}_bug_report.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { 
+                    type: 'jpeg', 
+                    quality: 0.95,
+                    cache: true
+                },
                 html2canvas: { 
                     scale: 2,
                     logging: true,
@@ -79,7 +93,7 @@ function initExport() {
                 },
                 pagebreak: { 
                     mode: ['avoid-all', 'css', 'legacy'],
-                    avoid: 'img'
+                    avoid: ['img', '.break-avoid']
                 }
             };
             
@@ -133,6 +147,36 @@ function initExport() {
             console.error('Export failed:', error);
             alert('Failed to generate PDF. Please try again.');
         }
+    }
+    
+    async function compressImage(imgElement, quality = 0.8) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate new dimensions while maintaining aspect ratio
+            const maxDimension = 1000;
+            let width = imgElement.naturalWidth;
+            let height = imgElement.naturalHeight;
+            
+            if (width > height && width > maxDimension) {
+                height *= maxDimension / width;
+                width = maxDimension;
+            } else if (height > maxDimension) {
+                width *= maxDimension / height;
+                height = maxDimension;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            ctx.drawImage(imgElement, 0, 0, width, height);
+            
+            canvas.toBlob((blob) => {
+                imgElement.src = URL.createObjectURL(blob);
+                resolve();
+            }, 'image/jpeg', quality);
+        });
     }
     
     async function exportWithRetry(element, options, retries = 3) {
@@ -207,8 +251,8 @@ function initExport() {
             
             images.forEach(img => {
                 html += `
-                    <div style="page-break-inside: avoid;">
-                        <img src="${img.src}" style="max-width: 100%; max-height: 500px; height: auto; display: block; margin: 0 auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; object-fit: contain;">
+                    <div class="break-avoid" style="page-break-inside: avoid;">
+                        <img src="${img.src}" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; object-fit: contain;">
                     </div>
                 `;
             });
