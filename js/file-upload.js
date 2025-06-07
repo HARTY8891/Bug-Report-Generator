@@ -44,7 +44,7 @@ function initFileUpload() {
     }
     
     function handleFiles(e) {
-        const files = e.target.files;
+        const files = Array.from(e.target.files);
         if (files.length > 0) {
             previewContainer.classList.remove('hidden');
             clearImagesBtn.classList.remove('hidden');
@@ -59,27 +59,37 @@ function initFileUpload() {
             previewContainer.appendChild(loadingIndicator);
             
             let loadedCount = 0;
+            const validImages = files.filter(file => file.type.match('image.*'));
             
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (!file.type.match('image.*')) continue;
-                
+            if (validImages.length === 0) {
+                previewContainer.innerHTML = '<div class="col-span-full text-center py-4 text-red-500">No valid images found</div>';
+                return;
+            }
+            
+            validImages.forEach(file => {
                 const reader = new FileReader();
+                
+                reader.onloadstart = () => {
+                    // Show loading state for each image
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'relative bg-gray-100 rounded flex items-center justify-center';
+                    placeholder.style.minHeight = '100px';
+                    placeholder.innerHTML = '<div class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+                    previewContainer.appendChild(placeholder);
+                };
+                
                 reader.onload = function(e) {
                     loadedCount++;
                     
-                    // Remove loading indicator after first image loads
-                    if (loadedCount === 1) {
-                        previewContainer.innerHTML = '';
-                    }
-                    
+                    // Replace placeholder with actual image
                     const imgContainer = document.createElement('div');
                     imgContainer.className = 'relative group';
                     
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.className = 'w-full h-auto rounded object-cover border border-gray-200';
-                    img.loading = 'lazy';
+                    img.className = 'w-full h-auto rounded object-contain border border-gray-200';
+                    img.loading = 'eager'; // Force eager loading for PDF export
+                    img.crossOrigin = 'Anonymous'; // Important for PDF export
                     
                     const removeBtn = document.createElement('button');
                     removeBtn.innerHTML = '<i class="fas fa-times"></i>';
@@ -95,19 +105,40 @@ function initFileUpload() {
                     
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(removeBtn);
-                    previewContainer.appendChild(imgContainer);
+                    
+                    // Replace the last placeholder (which is our loading indicator)
+                    const placeholders = previewContainer.querySelectorAll('div.relative.bg-gray-100');
+                    if (placeholders.length > 0) {
+                        placeholders[placeholders.length - 1].replaceWith(imgContainer);
+                    } else {
+                        previewContainer.appendChild(imgContainer);
+                    }
+                    
+                    // Remove initial loading indicator if this is the first image
+                    if (loadedCount === 1 && loadingIndicator.parentNode) {
+                        previewContainer.removeChild(loadingIndicator);
+                    }
                 };
                 
-                reader.onerror = function() {
-                    console.error('Error loading image');
+                reader.onerror = () => {
                     loadedCount++;
-                    if (loadedCount === files.length && previewContainer.children.length === 1 && previewContainer.firstChild === loadingIndicator) {
-                        previewContainer.innerHTML = '<div class="col-span-full text-center py-4 text-red-500">Error loading images</div>';
+                    console.error('Error loading image:', file.name);
+                    
+                    // Show error for this image
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'col-span-full text-center py-4 text-red-500';
+                    errorDiv.textContent = `Error loading: ${file.name}`;
+                    
+                    const placeholders = previewContainer.querySelectorAll('div.relative.bg-gray-100');
+                    if (placeholders.length > 0) {
+                        placeholders[placeholders.length - 1].replaceWith(errorDiv);
+                    } else {
+                        previewContainer.appendChild(errorDiv);
                     }
                 };
                 
                 reader.readAsDataURL(file);
-            }
+            });
         }
     }
     
