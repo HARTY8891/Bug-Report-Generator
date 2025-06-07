@@ -147,7 +147,7 @@ function initExport() {
         }
     }
     
-    async function generateReportHTML() {
+        async function generateReportHTML() {
         const date = document.getElementById('reportDate').value;
         const reportNumber = document.getElementById('reportNumber').value;
         const summary = document.getElementById('bugSummary').value;
@@ -166,6 +166,8 @@ function initExport() {
                 <p style="margin: 5px 0;"><strong>Summary:</strong> ${summary}</p>
                 <p style="margin: 5px 0;"><strong>Severity:</strong> ${severity} ${urgent ? '<span style="background-color: #ffebee; color: #c62828; padding: 2px 5px; border-radius: 3px; font-size: 9pt; margin-left: 5px;">URGENT</span>' : ''}</p>
                 ${confidential ? '<p style="color: #c62828; font-weight: bold; margin: 5px 0;"><span style="margin-right: 5px;">🔒</span>CONFIDENTIAL</p>' : ''}
+                <p style="margin: 5px 0;"><strong>Reported By:</strong> ${reportedBy}</p>
+                <p style="margin: 5px 0;"><strong>Assigned To:</strong> ${reportedTo || 'Not assigned'}</p>
             </div>
             
             <div style="margin-bottom: 20px; page-break-inside: avoid;">
@@ -204,26 +206,13 @@ function initExport() {
             images.forEach(img => {
                 html += `
                     <div style="page-break-inside: avoid;">
-                        <img src="${img.src}" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                        <img src="${img.src}" style="max-width: 100%; max-height: 500px; height: auto; display: block; margin: 0 auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; object-fit: contain;">
                     </div>
                 `;
             });
             
             html += `</div></div>`;
         }
-        
-        html += `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; page-break-inside: avoid;">
-                <div>
-                    <h3 style="font-size: 12pt; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">Reported By</h3>
-                    <p style="margin: 0;">${reportedBy}</p>
-                </div>
-                <div>
-                    <h3 style="font-size: 12pt; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">Assigned To</h3>
-                    <p style="margin: 0;">${reportedTo || 'Not assigned'}</p>
-                </div>
-            </div>
-        `;
         
         return html;
     }
