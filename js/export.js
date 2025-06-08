@@ -27,7 +27,7 @@ function initExport() {
     }
     
     async function exportReport(format) {
-        if (!window.validateForm()) return;
+        if (!validateForm()) return;
         
         try {
             // Create a temporary element with the report content
