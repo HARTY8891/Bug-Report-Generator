@@ -1,4 +1,3 @@
-// form-handler.js
 function initFormHandlers() {
     document.getElementById('clearFormBtn').addEventListener('click', clearForm);
     
